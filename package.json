@@ -1,0 +1,23 @@
+{
+  "name": "lfs-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Query the LFS API in your NodeJS projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PButcher/lfs-api.git"
+  },
+  "author": "Peter Butcher <pbutcher93@gmail.com> (https://pbutcher.uk)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PButcher/lfs-api/issues"
+  },
+  "homepage": "https://github.com/PButcher/lfs-api#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  }
+}
