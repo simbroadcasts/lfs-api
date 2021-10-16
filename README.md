@@ -31,7 +31,7 @@ Create an LFS API instance.
 
 #### Parameters
 
-`client_id` _string_ - Your application's client\*id  
+`client_id` _string_ - Your application's client id  
 `client_secret` _string_ - Your application's client_secret
 
 ### **`async`** `LFSAPI.makeRequest(endpoint)`
