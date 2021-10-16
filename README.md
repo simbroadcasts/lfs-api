@@ -54,8 +54,8 @@ Make an LFS API request based on the full API endpoint string. It is recommended
 
 The LFS API currently offers the following methods:
 
-- getVehicleMods
-- getVehicleMod(id)
+- [getVehicleMods](#async-lfsapigetvehiclemods)
+- [getVehicleMod(id)](#async-lfsapigetvehiclemodid)
 
 ### **`async`** `LFSAPI.getVehicleMods`
 
