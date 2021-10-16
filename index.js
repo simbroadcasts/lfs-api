@@ -114,7 +114,7 @@ class LFSAPI {
    * @name getVehicleMods
    * @description List all vehicle mods
    */
-  getVehicleMods() {
+  async getVehicleMods() {
     return await this.makeRequest("vehiclemod");
   }
 
@@ -123,7 +123,7 @@ class LFSAPI {
    * @description Get specific vehicle mod by ID
    * @param {number|string} id Vehicle mod ID
    */
-  getVehicleMod(id) {
+  async getVehicleMod(id) {
     return await this.makeRequest(`vehiclemod/${id}`);
   }
 }
