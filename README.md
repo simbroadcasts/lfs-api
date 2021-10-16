@@ -19,7 +19,7 @@ Once you have set up an application, you can use your `client_id` and `client_se
 import LFSAPI from "lfs-api";
 
 // Create an api class instance
-const api = new LFSAPI("YOUR_CLIENT_API", "YOUR_CLIENT_SECRET");
+const api = new LFSAPI("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET");
 
 // Make queries
 // With request API methods (recommended)
