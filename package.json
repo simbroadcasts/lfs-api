@@ -15,8 +15,7 @@
   },
   "homepage": "https://github.com/PButcher/lfs-api#readme",
   "scripts": {
-    "dist": "tsc -p ./",
-    "start": "node ./dist/index.js"
+    "dist": "tsc -p ./"
   },
   "dependencies": {
     "node-fetch": "^3.0.0"
