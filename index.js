@@ -4,8 +4,8 @@ import fetch from "node-fetch";
  * @name LFSAPI
  * @description Make requests to the Live for Speed JSON API
  * @author Peter Butcher (PButcher) <pete[at]pbutcher[dot]com>
- * @param {string} client_id LFS API Client ID
- * @param {string} client_secret LFS API Client Secret
+ * @param {string} client_id - LFS API Client ID
+ * @param {string} client_secret - LFS API Client Secret
  */
 class LFSAPI {
   constructor(client_id, client_secret) {
@@ -63,7 +63,7 @@ class LFSAPI {
   /**
    * @name makeRequest
    * @description Make a request based on the full API endpoint string
-   * @param {string} endpoint full endpoint string
+   * @param {string} endpoint - Full endpoint string
    * @returns JSON response from LFS API
    */
   async makeRequest(endpoint) {
@@ -121,7 +121,7 @@ class LFSAPI {
   /**
    * @name getVehicleMod
    * @description Get specific vehicle mod by ID
-   * @param {number|string} id Vehicle mod ID
+   * @param {number|string} id - Vehicle mod ID
    */
   async getVehicleMod(id) {
     return await this.makeRequest(`vehiclemod/${id}`);
@@ -138,7 +138,7 @@ class LFSAPI {
   /**
    * @name getHost
    * @description Get specific host by ID
-   * @param {number|string} id Host ID
+   * @param {number|string} id - Host ID
    */
   async getHost(id) {
     return await this.makeRequest(`host/${id}`);
