@@ -2,6 +2,8 @@
 
 Make [Live for Speed](https://lfs.net) JSON API queries in your NodeJS projects.
 
+**Note:** This module should only be used in your NodeJS back-end. The LFS API uses client secrets which should not be used in front-end/browser codebases.
+
 ## Install
 
 Add this module to your project with `npm install lfs-api` or `yarn add lfs-api`
