@@ -20,10 +20,16 @@ import LFSAPI from "lfs-api";
 const api = new LFSAPI("YOUR_CLIENT_API", "YOUR_CLIENT_SECRET");
 
 // Make queries
-const query = await api.makeRequest("vehiclemod");
+// With request API methods (recommended)
+const fz5sc = await api.getVehicleMod(7097617);
+
+// Based on endpoint url
+const vehiclemods = await api.makeRequest("vehiclemod");
 ```
 
-## API
+---
+
+## Basic API
 
 ### `LFSAPI.constructor(client_id, client_secret)`
 
@@ -36,11 +42,36 @@ Create an LFS API instance.
 
 ### **`async`** `LFSAPI.makeRequest(endpoint)`
 
-Make an LFS API request.
+Make an LFS API request based on the full API endpoint string. It is recommended to use one of the [API request methods](#Request-API) listed below.
 
 #### Parameters
 
 `endpoint` _string_ - An LFS API endpoint
+
+---
+
+## Request API
+
+The LFS API currently offers the following methods:
+
+- getVehicleMods
+- getVehicleMod(id)
+
+### **`async`** `LFSAPI.getVehicleMods`
+
+List all vehicle mods
+
+### **`async`** `LFSAPI.getVehicleMod(id)`
+
+Get specific vehicle mod by ID
+
+#### Parameters
+
+`id` _string_ - Vehicle mod ID
+
+---
+
+## Helpers
 
 ### `LFS.setVerbose(verbose)`
 

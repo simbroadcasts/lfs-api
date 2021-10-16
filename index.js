@@ -50,13 +50,22 @@ class LFSAPI {
     return Date.now() / 1000 > this.expires;
   }
 
-  // Verbose log messages
+  /**
+   * @name setVerbose
+   * @description Log debug messages
+   * @param {boolean} v
+   */
   setVerbose(v) {
     if (typeof v === "boolean") this.verbose = v;
     return this;
   }
 
-  // Make a request
+  /**
+   * @name makeRequest
+   * @description Make a request based on the full API endpoint string
+   * @param {string} endpoint full endpoint string
+   * @returns JSON response from LFS API
+   */
   async makeRequest(endpoint) {
     // Get a new access token if the previous one expired
     if (this._tokenExpired()) {
@@ -99,6 +108,23 @@ class LFSAPI {
         this._error(err);
         return err;
       });
+  }
+
+  /**
+   * @name getVehicleMods
+   * @description List all vehicle mods
+   */
+  getVehicleMods() {
+    return await this.makeRequest("vehiclemod");
+  }
+
+  /**
+   * @name getVehicleMod
+   * @description Get specific vehicle mod by ID
+   * @param {number|string} id Vehicle mod ID
+   */
+  getVehicleMod(id) {
+    return await this.makeRequest(`vehiclemod/${id}`);
   }
 }
 
