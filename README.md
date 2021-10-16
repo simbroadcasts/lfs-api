@@ -54,8 +54,22 @@ Make an LFS API request based on the full API endpoint string. It is recommended
 
 The LFS API currently offers the following methods:
 
+- [getHosts](#async-lfsapigethosts)
+- [getHost(id)](#async-lfsapigethostid)
 - [getVehicleMods](#async-lfsapigetvehiclemods)
 - [getVehicleMod(id)](#async-lfsapigetvehiclemodid)
+
+### **`async`** `LFSAPI.getHosts`
+
+List all hosts
+
+### **`async`** `LFSAPI.getHost(id)`
+
+Get specific host by ID
+
+#### Parameters
+
+`id` _string_ - Host ID
 
 ### **`async`** `LFSAPI.getVehicleMods`
 

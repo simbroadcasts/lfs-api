@@ -77,7 +77,7 @@ class LFSAPI {
       });
 
       // Get access token
-      await fetch("https://idtest.liveforspeed.net/oauth2/access_token", {
+      await fetch("https://id.lfs.net/oauth2/access_token", {
         method: "POST",
         header: "Content-Type: application/x-www-form-urlencoded",
         body: params,
@@ -94,7 +94,7 @@ class LFSAPI {
     }
 
     // Make API request
-    return await fetch(`https://apitest.liveforspeed.net/${endpoint}`, {
+    return await fetch(`https://api.lfs.net/${endpoint}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${this.access_token}`,
@@ -125,6 +125,23 @@ class LFSAPI {
    */
   async getVehicleMod(id) {
     return await this.makeRequest(`vehiclemod/${id}`);
+  }
+
+  /**
+   * @name getHosts
+   * @description List all hosts
+   */
+  async getHosts() {
+    return await this.makeRequest("host");
+  }
+
+  /**
+   * @name getHost
+   * @description Get specific host by ID
+   * @param {number|string} id Host ID
+   */
+  async getHost(id) {
+    return await this.makeRequest(`host/${id}`);
   }
 }
 
