@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import fetch from 'node-fetch';
 /**
  * @name LFSAPI
@@ -66,88 +57,78 @@ class LFSAPI {
      * @param {string} endpoint - Full endpoint string
      * @returns JSON response from LFS API
      */
-    makeRequest(endpoint) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Get a new access token if the previous one expired
-            if (this._tokenExpired()) {
-                this._log('Renewing Access Token');
-                const params = new URLSearchParams({
-                    grant_type: 'client_credentials',
-                    client_id: this.client_id,
-                    client_secret: this.client_secret,
-                });
-                // Get access token
-                yield fetch('https://id.lfs.net/oauth2/access_token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params,
-                })
-                    .then((res) => res.json())
-                    .then((json) => {
-                    this.access_token = json.access_token;
-                    this.expires = Date.now() / 1000 + json.expires_in;
-                })
-                    .catch((err) => {
-                    this._error(err);
-                    return err;
-                });
-            }
-            // Make API request
-            return yield fetch(`https://api.lfs.net/${endpoint}`, {
-                method: 'GET',
+    async makeRequest(endpoint) {
+        // Get a new access token if the previous one expired
+        if (this._tokenExpired()) {
+            this._log('Renewing Access Token');
+            const params = new URLSearchParams({
+                grant_type: 'client_credentials',
+                client_id: this.client_id,
+                client_secret: this.client_secret,
+            });
+            // Get access token
+            await fetch('https://id.lfs.net/oauth2/access_token', {
+                method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${this.access_token}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
+                body: params,
             })
                 .then((res) => res.json())
                 .then((json) => {
-                return json;
+                this.access_token = json.access_token;
+                this.expires = Date.now() / 1000 + json.expires_in;
             })
                 .catch((err) => {
                 this._error(err);
                 return err;
             });
+        }
+        // Make API request
+        return await fetch(`https://api.lfs.net/${endpoint}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${this.access_token}`,
+            },
+        })
+            .then((res) => res.json())
+            .then((json) => {
+            return json;
+        })
+            .catch((err) => {
+            this._error(err);
+            return err;
         });
     }
     /**
      * @name getVehicleMods
      * @description List all vehicle mods
      */
-    getVehicleMods() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.makeRequest('vehiclemod');
-        });
+    async getVehicleMods() {
+        return await this.makeRequest('vehiclemod');
     }
     /**
      * @name getVehicleMod
      * @description Get specific vehicle mod by ID
      * @param {number|string} id - Vehicle mod ID
      */
-    getVehicleMod(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.makeRequest(`vehiclemod/${id}`);
-        });
+    async getVehicleMod(id) {
+        return await this.makeRequest(`vehiclemod/${id}`);
     }
     /**
      * @name getHosts
      * @description List all hosts
      */
-    getHosts() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.makeRequest('host');
-        });
+    async getHosts() {
+        return await this.makeRequest('host');
     }
     /**
      * @name getHost
      * @description Get specific host by ID
      * @param {number|string} id - Host ID
      */
-    getHost(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.makeRequest(`host/${id}`);
-        });
+    async getHost(id) {
+        return await this.makeRequest(`host/${id}`);
     }
 }
 export default LFSAPI;
