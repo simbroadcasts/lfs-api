@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 /**
  * @name LFSAPI
  * @description Make requests to the Live for Speed JSON API
@@ -8,13 +8,13 @@ import fetch from 'node-fetch';
  */
 class LFSAPI {
     constructor(client_id, client_secret) {
-        if (typeof client_id !== 'string' && typeof client_secret !== 'string') {
+        if (typeof client_id !== "string" && typeof client_secret !== "string") {
             throw new Error(`LFSAPI: Constructor expects 2 arguments of type string (client_id, client_secret), got ${typeof client_id} and ${typeof client_secret} instead.`);
         }
         // LFS API Version
-        this.version = '0.0.1';
+        this.version = "0.0.1";
         // LFS API Access Token
-        this.access_token = '';
+        this.access_token = "";
         // Expire uts
         this.expires = 0;
         // Verbose
@@ -47,7 +47,7 @@ class LFSAPI {
      * @param {boolean} v
      */
     setVerbose(v) {
-        if (typeof v === 'boolean')
+        if (typeof v === "boolean")
             this.verbose = v;
         return this;
     }
@@ -60,17 +60,17 @@ class LFSAPI {
     async makeRequest(endpoint) {
         // Get a new access token if the previous one expired
         if (this._tokenExpired()) {
-            this._log('Renewing Access Token');
+            this._log("Renewing Access Token");
             const params = new URLSearchParams({
-                grant_type: 'client_credentials',
+                grant_type: "client_credentials",
                 client_id: this.client_id,
                 client_secret: this.client_secret,
             });
             // Get access token
-            await fetch('https://id.lfs.net/oauth2/access_token', {
-                method: 'POST',
+            await fetch("https://id.lfs.net/oauth2/access_token", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: params,
             })
@@ -86,7 +86,7 @@ class LFSAPI {
         }
         // Make API request
         return await fetch(`https://api.lfs.net/${endpoint}`, {
-            method: 'GET',
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${this.access_token}`,
             },
@@ -105,7 +105,7 @@ class LFSAPI {
      * @description List all vehicle mods
      */
     async getVehicleMods() {
-        return await this.makeRequest('vehiclemod');
+        return await this.makeRequest("vehiclemod");
     }
     /**
      * @name getVehicleMod
@@ -120,7 +120,7 @@ class LFSAPI {
      * @description List all hosts
      */
     async getHosts() {
-        return await this.makeRequest('host');
+        return await this.makeRequest("host");
     }
     /**
      * @name getHost
