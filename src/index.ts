@@ -6,6 +6,7 @@ import fetch from "node-fetch";
  * @author Peter Butcher (PButcher) <pete[at]pbutcher[dot]com>
  * @param {string} client_id - LFS API Client ID
  * @param {string} client_secret - LFS API Client Secret
+ * @param {string} [redirect_uri] - LFS API Redirect URI
  */
 class LFSAPI {
   version: string;
@@ -14,8 +15,9 @@ class LFSAPI {
   verbose: boolean;
   client_id: string;
   client_secret: string;
+  redirect_uri?: string;
 
-  constructor(client_id: string, client_secret: string) {
+  constructor(client_id: string, client_secret: string, redirect_uri: string) {
     if (typeof client_id !== "string" && typeof client_secret !== "string") {
       throw new Error(
         `LFSAPI: Constructor expects 2 arguments of type string (client_id, client_secret), got ${typeof client_id} and ${typeof client_secret} instead.`

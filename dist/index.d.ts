@@ -4,6 +4,7 @@
  * @author Peter Butcher (PButcher) <pete[at]pbutcher[dot]com>
  * @param {string} client_id - LFS API Client ID
  * @param {string} client_secret - LFS API Client Secret
+ * @param {string} [redirect_uri] - LFS API Redirect URI
  */
 declare class LFSAPI {
     version: string;
@@ -12,7 +13,8 @@ declare class LFSAPI {
     verbose: boolean;
     client_id: string;
     client_secret: string;
-    constructor(client_id: string, client_secret: string);
+    redirect_uri?: string;
+    constructor(client_id: string, client_secret: string, redirect_uri: string);
     _log(msg: string): void;
     _warn(msg: string): void;
     _error(msg: string): void;
