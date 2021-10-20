@@ -18,10 +18,12 @@
     "dist": "tsc --declaration -p ./"
   },
   "dependencies": {
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^3.0.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^16.11.0",
+    "@types/uuid": "^8.3.1",
     "typescript": "^4.4.4"
   }
 }
