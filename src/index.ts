@@ -274,6 +274,96 @@ class LFSAPI {
     return await this.makeRequest(`vehiclemod/${id}`);
   }
 
+  // Vehicle class types for lookup
+  static vehicleClassTypes = {
+    0: "Object",
+    1: "Touring car",
+    2: "Saloon car",
+    3: "Buggy",
+    4: "Formula",
+    5: "GT",
+    6: "Hire kart",
+    7: "Kart, 100cc",
+    8: "Kart, 125cc",
+    9: "Kart, 250cc",
+    10: "Formula 1",
+    11: "Formula SAE",
+    12: "Bike",
+    13: "Van",
+    14: "Truck",
+  };
+
+  /**
+   * @public
+   * @name lookupVehicleClassType
+   * @description Convert vehicle class type ID into name string
+   * @param {string|number} id - Vehicle class type ID
+   * @returns Vehicle class type name string
+   */
+  lookupVehicleClassType(id: number | string) {
+    return LFSAPI.vehicleClassTypes[id];
+  }
+
+  // ICE Layout types for lookup
+  static vehicleICELayoutTypes = {
+    0: "Inline",
+    1: "Flat",
+    2: "V",
+  };
+
+  /**
+   * @public
+   * @name lookupVehicleICELayoutType
+   * @description Convert vehicle ICE layout type ID into name string
+   * @param {string|number} id - Vehicle ICE layout type ID
+   * @returns Vehicle ICE layout type name string
+   */
+  lookupVehicleICELayoutType(id: number | string) {
+    return LFSAPI.vehicleICELayoutTypes[id];
+  }
+
+  // Drive types for lookup
+  static vehicleDriveTypes = {
+    0: "None",
+    1: "Rear wheel drive",
+    2: "Front wheel drive",
+    3: "All wheel drive",
+  };
+
+  /**
+   * @public
+   * @name lookupVehicleDriveType
+   * @description Convert vehicle drive type ID into name string
+   * @param {string|number} id - Vehicle drive type ID
+   * @returns Vehicle drive type name string
+   */
+  lookupVehicleDriveType(id: number | string) {
+    return LFSAPI.vehicleDriveTypes[id];
+  }
+
+  // Shift types for lookup
+  static vehicleShiftTypes = {
+    0: "None",
+    1: "H-pattern gearbox",
+    2: "Motorbike",
+    3: "Sequential",
+    4: "Sequential with ignition cut",
+    5: "Paddle",
+    6: "Electric motor",
+    7: "Centrifugal clutch",
+  };
+
+  /**
+   * @public
+   * @name lookupVehicleShiftType
+   * @description Convert vehicle shift type ID into name string
+   * @param {string|number} id - Vehicle shift type ID
+   * @returns Vehicle shift type name string
+   */
+  lookupVehicleShiftType(id: number | string) {
+    return LFSAPI.vehicleShiftTypes[id];
+  }
+
   /**
    * @public
    * @name getHosts

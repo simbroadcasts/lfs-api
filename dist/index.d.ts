@@ -55,7 +55,7 @@ declare class LFSAPI {
      * @param {string} [state] - User defined CSRF Token
      * @returns Object containing authentication URL and access token fetcher
      */
-    authFlow(scope: string, state: string | undefined): {
+    authFlow(scope: string, state?: string | undefined): {
         authURL: string;
         getAccessToken: any;
     };
@@ -103,6 +103,76 @@ declare class LFSAPI {
      * @param {number|string} id - Vehicle mod ID
      */
     getVehicleMod(id: number | string): Promise<any>;
+    static vehicleClassTypes: {
+        0: string;
+        1: string;
+        2: string;
+        3: string;
+        4: string;
+        5: string;
+        6: string;
+        7: string;
+        8: string;
+        9: string;
+        10: string;
+        11: string;
+        12: string;
+        13: string;
+        14: string;
+    };
+    /**
+     * @public
+     * @name lookupVehicleClassType
+     * @description Convert vehicle class type ID into name string
+     * @param {string|number} id - Vehicle class type ID
+     * @returns Vehicle class type name string
+     */
+    lookupVehicleClassType(id: number | string): any;
+    static vehicleICELayoutTypes: {
+        0: string;
+        1: string;
+        2: string;
+    };
+    /**
+     * @public
+     * @name lookupVehicleICELayoutType
+     * @description Convert vehicle ICE layout type ID into name string
+     * @param {string|number} id - Vehicle ICE layout type ID
+     * @returns Vehicle ICE layout type name string
+     */
+    lookupVehicleICELayoutType(id: number | string): any;
+    static vehicleDriveTypes: {
+        0: string;
+        1: string;
+        2: string;
+        3: string;
+    };
+    /**
+     * @public
+     * @name lookupVehicleDriveType
+     * @description Convert vehicle drive type ID into name string
+     * @param {string|number} id - Vehicle drive type ID
+     * @returns Vehicle drive type name string
+     */
+    lookupVehicleDriveType(id: number | string): any;
+    static vehicleShiftTypes: {
+        0: string;
+        1: string;
+        2: string;
+        3: string;
+        4: string;
+        5: string;
+        6: string;
+        7: string;
+    };
+    /**
+     * @public
+     * @name lookupVehicleShiftType
+     * @description Convert vehicle shift type ID into name string
+     * @param {string|number} id - Vehicle shift type ID
+     * @returns Vehicle shift type name string
+     */
+    lookupVehicleShiftType(id: number | string): any;
     /**
      * @public
      * @name getHosts
