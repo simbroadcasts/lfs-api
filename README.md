@@ -82,7 +82,6 @@ app.get("/api/v1/lfs/", async (req, res) => {
     const user = await api.getUserInfo(req.query.code);
     // ...
   }
-
   // Display a button with the auth URL to the user
   res.send(`<a href="${authURL}">Authenticate with lfs.net</a>`);
 });
