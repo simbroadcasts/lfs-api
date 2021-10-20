@@ -124,7 +124,7 @@ class LFSAPI {
    * @param {string} [state] - User defined CSRF Token
    * @returns Object containing authentication URL and access token fetcher
    */
-  authFlow(scope: string, state: string | undefined) {
+  authFlow(scope: string, state?: string | undefined) {
     const authURLParams = new URLSearchParams({
       response_type: "code",
       client_id: this.client_id,
