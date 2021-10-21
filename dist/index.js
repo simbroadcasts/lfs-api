@@ -11,13 +11,28 @@ import { v4 as uuidv4 } from "uuid";
  */
 class LFSAPI {
     constructor(client_id, client_secret, redirect_uri, overrides) {
-        if (typeof client_id !== "string" ||
-            typeof client_secret !== "string" ||
-            (typeof redirect_uri !== "undefined" && typeof redirect_uri !== "string")) {
-            throw new Error(`LFSAPI: Constructor expects 2 mandatory arguments: client_id (string) and client_secret (string), and 1 optional argument: redirect_url (string|undefined) but got ${typeof client_id}, ${typeof client_secret} and ${typeof redirect_uri} instead.`);
-        }
+        // Arguments
+        // TODO: Handle malformed arguments better than this...
+        // if (
+        //   typeof client_id !== "string" ||
+        //   typeof client_secret !== "string" ||
+        //   (typeof redirect_uri !== "undefined" && typeof redirect_uri !== "string")
+        // ) {
+        //   throw new Error(
+        //     `LFSAPI: Constructor expects 2 mandatory arguments: client_id (string) and client_secret (string), and 1 optional argument: redirect_url (string|undefined) but got ${typeof client_id}, ${typeof client_secret} and ${typeof redirect_uri} instead.`
+        //   );
+        // }
+        // TODO:
+        // - Auth flow refresh tokens
+        // - PKCE Flow
         // LFS API Version
         this.version = "0.0.1";
+        // Client ID
+        this.client_id = client_id;
+        // Client Secret
+        this.client_secret = client_secret;
+        // Auth Flow Redirect URI
+        this.redirect_uri = redirect_uri;
         // ID Endpoint
         this.idURL = (overrides === null || overrides === void 0 ? void 0 : overrides.id) ? overrides.id : "https://id.lfs.net";
         // API Endpoint
@@ -30,12 +45,8 @@ class LFSAPI {
         this.authorization_code_flow_expires = 0;
         // Verbose
         this.verbose = false;
-        // Client ID
-        this.client_id = client_id;
-        // Client Secret
-        this.client_secret = client_secret;
-        // Redirect URI
-        this.redirect_uri = redirect_uri;
+        // Auth Code
+        this.authCode = null;
     }
     // Logging (log, warn, error)
     _log(msg) {
@@ -81,23 +92,24 @@ class LFSAPI {
     }
     /**
      * @public
-     * @name authFlow
-     * @description LFS Authorization Code Flow
+     * @name generateAuthFlowURL
+     * @description Generate URL forLFS Authorization Code Flow
      * @param {string} scope - API Scopes
      * @param {string} [state] - User defined CSRF Token
-     * @returns Object containing authentication URL and access token fetcher
+     * @returns Object containing authentication URL and CSRF Token
      */
-    authFlow(scope, state) {
+    generateAuthFlowURL(scope, state) {
+        const csrfToken = state ? state : uuidv4();
         const authURLParams = new URLSearchParams({
             response_type: "code",
             client_id: this.client_id,
             redirect_uri: this.redirect_uri,
             scope,
-            state: state ? state : uuidv4(),
+            state: csrfToken,
         });
         return {
             authURL: `${this.idURL}/oauth2/authorize?${authURLParams}`,
-            getAccessToken: this._getAuthorizationCodeFlowAccessToken.bind(this),
+            csrfToken,
         };
     }
     /**
@@ -169,20 +181,23 @@ class LFSAPI {
      * @returns JSON response from LFS API
      */
     async makeRequest(endpoint, code) {
+        // Use appropriate auth flow code
+        const authCode = code ? code : this.authCode ? this.authCode : undefined;
+        console.log(authCode);
         // If this is a client credentials flow request (!code)...
         // get a new access token if the previous one expired
-        if (!code && this._clientCredentialsFlowAccessTokenExpired()) {
+        if (!authCode && this._clientCredentialsFlowAccessTokenExpired()) {
             await this._getClientCredentialsFlowAccessToken();
         }
         else {
             // TODO: Handle auth flow refresh tokens here...
-            await this._getAuthorizationCodeFlowAccessToken(code);
+            await this._getAuthorizationCodeFlowAccessToken(authCode);
         }
         // Make API request
         return await fetch(`${this.apiURL}/${endpoint}`, {
             method: "GET",
             headers: {
-                Authorization: `Bearer ${code
+                Authorization: `Bearer ${authCode
                     ? this.authorization_code_flow_access_token
                     : this.client_credentials_flow_access_token}`,
             },
@@ -196,7 +211,16 @@ class LFSAPI {
             return err;
         });
     }
-    // CLIENT_CREDENTIALS ENDPOINTS:
+    /**
+     * @public
+     * @name setAuthCode
+     * @description Set the auth code from auth flow
+     * @param {string} code - Aut code from query string
+     */
+    setAuthCode(code) {
+        this.authCode = code;
+    }
+    // CLIENT_CREDENTIALS ENDPOINTS
     /**
      * @public
      * @name getVehicleMods
@@ -271,7 +295,7 @@ class LFSAPI {
     async getHost(id) {
         return await this.makeRequest(`host/${id}`);
     }
-    // AUTHORIZATION_CODE ENDPOINTS:
+    // AUTHORIZATION_CODE ENDPOINTS
     /**
      * @public
      * @name getUserInfo

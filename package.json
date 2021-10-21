@@ -2,7 +2,7 @@
   "name": "lfs-api",
   "version": "1.0.0",
   "type": "module",
-  "description": "Query the LFS API in your NodeJS projects",
+  "description": "Query the Live for Speed API in your projects",
   "main": "dist/index.js",
   "repository": {
     "type": "git",

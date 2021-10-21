@@ -17,12 +17,15 @@ declare class LFSAPI {
     client_id: string;
     client_secret: string;
     redirect_uri?: string;
+    scope?: string;
+    csrf?: string;
     idURL: string;
     apiURL: string;
-    constructor(client_id: string, client_secret: string, redirect_uri?: string | undefined, overrides?: {
+    authCode?: string;
+    constructor(client_id: string, client_secret: string, redirect_uri?: string, overrides?: {
         id: string;
         api: string;
-    } | undefined);
+    });
     _log(msg: string): void;
     _warn(msg: string): void;
     _error(msg: string): void;
@@ -49,15 +52,15 @@ declare class LFSAPI {
     setVerbose(v: boolean): this;
     /**
      * @public
-     * @name authFlow
-     * @description LFS Authorization Code Flow
+     * @name generateAuthFlowURL
+     * @description Generate URL forLFS Authorization Code Flow
      * @param {string} scope - API Scopes
      * @param {string} [state] - User defined CSRF Token
-     * @returns Object containing authentication URL and access token fetcher
+     * @returns Object containing authentication URL and CSRF Token
      */
-    authFlow(scope: string, state?: string | undefined): {
+    generateAuthFlowURL(scope: string, state?: string): {
         authURL: string;
-        getAccessToken: any;
+        csrfToken: string;
     };
     /**
      * @private
@@ -90,6 +93,13 @@ declare class LFSAPI {
      * @returns JSON response from LFS API
      */
     makeRequest(endpoint: string, code?: string): Promise<any>;
+    /**
+     * @public
+     * @name setAuthCode
+     * @description Set the auth code from auth flow
+     * @param {string} code - Aut code from query string
+     */
+    setAuthCode(code: string): void;
     /**
      * @public
      * @name getVehicleMods
