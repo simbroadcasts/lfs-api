@@ -51,7 +51,7 @@ class LFSAPI {
      * @returns Object containing authentication URL and CSRF Token
      */
     generateAuthFlowURL(scope, state) {
-        var _a, _b;
+        var _a;
         const csrfToken = state ? state : uuidv4();
         const authURLParams = new URLSearchParams({
             response_type: "code",
@@ -60,12 +60,7 @@ class LFSAPI {
             scope,
             state: csrfToken,
         });
-        if ((_a = this.config) === null || _a === void 0 ? void 0 : _a.spa) {
-            // Single page apps (insecure)
-            // - Authorization Flow with PKCE
-            // TODO: Generate code challenge and code verifier
-        }
-        else if ((_b = this.config) === null || _b === void 0 ? void 0 : _b.auth) {
+        if ((_a = this.config) === null || _a === void 0 ? void 0 : _a.auth) {
             // Secure applications with Authorization Flow
             // - Authorization Flow with Client Secret
             return {

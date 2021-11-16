@@ -5,7 +5,6 @@ type Config = {
   client_id: string;
   client_secret?: string;
   redirect_uri?: string;
-  spa?: boolean;
   auth?: boolean;
   idURL?: string;
   apiURL?: string;
@@ -96,11 +95,7 @@ class LFSAPI {
       state: csrfToken,
     });
 
-    if (this.config?.spa) {
-      // Single page apps (insecure)
-      // - Authorization Flow with PKCE
-      // TODO: Generate code challenge and code verifier
-    } else if (this.config?.auth) {
+    if (this.config?.auth) {
       // Secure applications with Authorization Flow
       // - Authorization Flow with Client Secret
       return {
