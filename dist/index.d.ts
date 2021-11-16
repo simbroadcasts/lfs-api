@@ -1,3 +1,16 @@
+declare type Config = {
+    client_id: string;
+    client_secret?: string;
+    redirect_uri?: string;
+    spa?: boolean;
+    auth?: boolean;
+    idURL?: string;
+    apiURL?: string;
+};
+declare type CCFlow = {
+    access_token: string;
+    expires_in: number;
+};
 /**
  * @name LFSAPI
  * @description Make requests to the Live for Speed JSON API
@@ -8,34 +21,16 @@
  * @param {object} [overrides] - Endpoint subdomain overrides { id, api }
  */
 declare class LFSAPI {
-    version: string;
-    client_credentials_flow_access_token: string;
-    authorization_code_flow_access_token: string;
-    client_credentials_flow_expires: number;
-    authorization_code_flow_expires: number;
-    verbose: boolean;
+    apiURL: string;
+    config: Config;
+    client_credentials_flow: CCFlow;
     client_id: string;
     client_secret: string;
-    redirect_uri?: string;
-    scope?: string;
-    csrf?: string;
     idURL: string;
-    apiURL: string;
-    authCode?: string;
-    constructor(client_id: string, client_secret: string, redirect_uri?: string, overrides?: {
-        id: string;
-        api: string;
-    });
-    _log(msg: string): void;
-    _warn(msg: string): void;
-    _error(msg: string): void;
-    /**
-     * @private
-     * @name _authorizationCodeFlowAccessTokenExpired
-     * @description Has the authorization code flow access token expired?
-     * @returns boolean - whether token has expired or not
-     */
-    _authorizationCodeFlowAccessTokenExpired(): boolean;
+    redirect_uri?: string;
+    verbose: boolean;
+    version: string;
+    constructor(config: Config);
     /**
      * @private
      * @name _clientCredentialsFlowAccessTokenExpired
@@ -45,15 +40,8 @@ declare class LFSAPI {
     _clientCredentialsFlowAccessTokenExpired(): boolean;
     /**
      * @public
-     * @name setVerbose
-     * @description Log debug messages
-     * @param {boolean} v
-     */
-    setVerbose(v: boolean): this;
-    /**
-     * @public
      * @name generateAuthFlowURL
-     * @description Generate URL forLFS Authorization Code Flow
+     * @description Generate URL for LFS Authorization Code Flow
      * @param {string} scope - API Scopes
      * @param {string} [state] - User defined CSRF Token
      * @returns Object containing authentication URL and CSRF Token
@@ -62,13 +50,6 @@ declare class LFSAPI {
         authURL: string;
         csrfToken: string;
     };
-    /**
-     * @private
-     * @name _getAuthorizationCodeFlowAccessToken
-     * @description Request LFS API access token via Authorization Code Flow
-     * @param {string} code - Authorization code returned from LFS auth server
-     */
-    _getAuthorizationCodeFlowAccessToken(code: string): Promise<void>;
     /**
      * @private
      * @name _getClientCredentialsFlowAccessToken
@@ -83,36 +64,55 @@ declare class LFSAPI {
      * @param access_token_store Access token type
      * @param access_token_expiry_store Access token type expiry
      */
-    _getAccessToken(params: URLSearchParams, cb: (access_token: string, expires_in: number) => void): Promise<void>;
+    _getAccessToken(params: URLSearchParams): Promise<any>;
+    /**
+     * @private
+     * @name getAuthFlowTokens
+     * @description Request LFS API access token via Authorization Code Flow
+     * @param {string} code - Authorization code returned from LFS auth server
+     */
+    getAuthFlowTokens(code: string): Promise<any>;
+    /**
+     * @private
+     * @name refreshAccessToken
+     * @description Refresh an access token using refresh token
+     * @param {string} refresh_token - Refresh token
+     */
+    refreshAccessToken(refresh_token: string): Promise<any>;
     /**
      * @public
      * @name makeRequest
      * @description Make a request based on the full API endpoint string
      * @param {string} endpoint - Full endpoint string
-     * @param {boolean} [code] - Request contains code param from auth flow
+     * @param {boolean} [token] - Access token override
      * @returns JSON response from LFS API
      */
-    makeRequest(endpoint: string, code?: string): Promise<any>;
+    makeRequest(endpoint: string, token?: string): Promise<any>;
     /**
      * @public
-     * @name setAuthCode
-     * @description Set the auth code from auth flow
-     * @param {string} code - Aut code from query string
+     * @name setVerbose
+     * @description Log debug messages
+     * @param {boolean} v
      */
-    setAuthCode(code: string): void;
+    setVerbose(v: boolean): this;
+    _log(msg: string): void;
+    _warn(msg: string): void;
+    _error(msg: string): void;
     /**
      * @public
      * @name getVehicleMods
+     * @param {string} [token] Access token override
      * @description List all vehicle mods
      */
-    getVehicleMods(): Promise<any>;
+    getVehicleMods(token?: string): Promise<any>;
     /**
      * @public
      * @name getVehicleMod
      * @description Get specific vehicle mod by ID
+     * @param {string} [token] Access token override
      * @param {number|string} id - Vehicle mod ID
      */
-    getVehicleMod(id: number | string): Promise<any>;
+    getVehicleMod(id: number | string, token?: string): Promise<any>;
     static vehicleClassTypes: {
         0: string;
         1: string;
@@ -187,21 +187,25 @@ declare class LFSAPI {
      * @public
      * @name getHosts
      * @description List all hosts
+     * @param {string} [token] Access token override
+     * @returns List of hosts
      */
-    getHosts(): Promise<any>;
+    getHosts(token?: string): Promise<any>;
     /**
      * @public
      * @name getHost
      * @description Get specific host by ID
      * @param {number|string} id - Host ID
+     * @param {string} [token] Access token override
+     * @returns Host details by ID
      */
-    getHost(id: number | string): Promise<any>;
+    getHost(id: number | string, token?: string): Promise<any>;
     /**
      * @public
      * @name getUserInfo
      * @description Get information of authorised user
-     * @param {string} [code] Query string URL param from auth flow
+     * @param {string} token Access token override
      */
-    getUserInfo(code?: string): Promise<any>;
+    getUserInfo(token: string): Promise<any>;
 }
 export default LFSAPI;
