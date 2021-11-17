@@ -1,11 +1,3 @@
-declare type Config = {
-    client_id: string;
-    client_secret?: string;
-    redirect_uri?: string;
-    auth?: boolean;
-    idURL?: string;
-    apiURL?: string;
-};
 declare type CCFlow = {
     access_token: string;
     expires_in: number;
@@ -21,7 +13,6 @@ declare type CCFlow = {
  */
 declare class LFSAPI {
     apiURL: string;
-    config: Config;
     client_credentials_flow: CCFlow;
     client_id: string;
     client_secret: string;
@@ -29,7 +20,7 @@ declare class LFSAPI {
     redirect_uri?: string;
     verbose: boolean;
     version: string;
-    constructor(config: Config);
+    constructor(client_id: string, client_secret: string, redirect_uri?: string, idURL?: string, apiURL?: string);
     /**
      * @private
      * @name _clientCredentialsFlowAccessTokenExpired

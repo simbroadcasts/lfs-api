@@ -1,15 +1,6 @@
 import fetch from "node-fetch";
 import { v4 as uuidv4 } from "uuid";
 
-type Config = {
-  client_id: string;
-  client_secret?: string;
-  redirect_uri?: string;
-  auth?: boolean;
-  idURL?: string;
-  apiURL?: string;
-};
-
 type CCFlow = {
   access_token: string;
   expires_in: number;
@@ -26,7 +17,6 @@ type CCFlow = {
  */
 class LFSAPI {
   apiURL: string;
-  config: Config;
   client_credentials_flow: CCFlow;
   client_id: string;
   client_secret: string;
@@ -35,27 +25,30 @@ class LFSAPI {
   verbose: boolean;
   version: string;
 
-  constructor(config: Config) {
+  constructor(
+    client_id: string,
+    client_secret: string,
+    redirect_uri?: string,
+    idURL?: string,
+    apiURL?: string
+  ) {
     // LFS API Version
     this.version = "0.0.1";
 
-    // Configuration
-    this.config = config;
-
     // Client ID
-    this.client_id = config.client_id;
+    this.client_id = client_id;
 
     // Client Secret
-    this.client_secret = config?.client_secret;
+    this.client_secret = client_secret;
 
     // Auth Flow Redirect URL
-    this.redirect_uri = config?.redirect_uri;
+    this.redirect_uri = redirect_uri;
 
     // ID Endpoint
-    this.idURL = config?.idURL ? config.idURL : "https://id.lfs.net";
+    this.idURL = idURL ? idURL : "https://id.lfs.net";
 
     // API Endpoint
-    this.apiURL = config?.apiURL ? config.apiURL : "https://api.lfs.net";
+    this.apiURL = apiURL ? apiURL : "https://api.lfs.net";
 
     // Client Credentials FLow
     this.client_credentials_flow = {
@@ -95,7 +88,7 @@ class LFSAPI {
       state: csrfToken,
     });
 
-    if (this.config?.auth) {
+    if (this.redirect_uri) {
       // Secure applications with Authorization Flow
       // - Authorization Flow with Client Secret
       return {

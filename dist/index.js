@@ -10,21 +10,19 @@ import { v4 as uuidv4 } from "uuid";
  * @param {object} [overrides] - Endpoint subdomain overrides { id, api }
  */
 class LFSAPI {
-    constructor(config) {
+    constructor(client_id, client_secret, redirect_uri, idURL, apiURL) {
         // LFS API Version
         this.version = "0.0.1";
-        // Configuration
-        this.config = config;
         // Client ID
-        this.client_id = config.client_id;
+        this.client_id = client_id;
         // Client Secret
-        this.client_secret = config === null || config === void 0 ? void 0 : config.client_secret;
+        this.client_secret = client_secret;
         // Auth Flow Redirect URL
-        this.redirect_uri = config === null || config === void 0 ? void 0 : config.redirect_uri;
+        this.redirect_uri = redirect_uri;
         // ID Endpoint
-        this.idURL = (config === null || config === void 0 ? void 0 : config.idURL) ? config.idURL : "https://id.lfs.net";
+        this.idURL = idURL ? idURL : "https://id.lfs.net";
         // API Endpoint
-        this.apiURL = (config === null || config === void 0 ? void 0 : config.apiURL) ? config.apiURL : "https://api.lfs.net";
+        this.apiURL = apiURL ? apiURL : "https://api.lfs.net";
         // Client Credentials FLow
         this.client_credentials_flow = {
             access_token: null,
@@ -51,7 +49,6 @@ class LFSAPI {
      * @returns Object containing authentication URL and CSRF Token
      */
     generateAuthFlowURL(scope, state) {
-        var _a;
         const csrfToken = state ? state : uuidv4();
         const authURLParams = new URLSearchParams({
             response_type: "code",
@@ -60,7 +57,7 @@ class LFSAPI {
             scope,
             state: csrfToken,
         });
-        if ((_a = this.config) === null || _a === void 0 ? void 0 : _a.auth) {
+        if (this.redirect_uri) {
             // Secure applications with Authorization Flow
             // - Authorization Flow with Client Secret
             return {
