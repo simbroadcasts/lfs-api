@@ -2,7 +2,7 @@
 
 Query the [Live for Speed](https://lfs.net) API in your projects.
 
-**Note:** This package does not yet support authorization flows with PKCE and is therefore only suitable for secure applications at this point in times. Do not use this module in insecure or single page applications (SPAs).
+**Note:** This package does not yet support authorization flows with PKCE and is therefore only suitable for secure applications at this point in time. Do not use this module in insecure or single page applications (SPAs).
 
 ---
 
