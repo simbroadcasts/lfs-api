@@ -14,7 +14,7 @@ Add this module to your project with `npm install lfs-api` or `yarn add lfs-api`
 
 ## Usage
 
-Before you can make requests, you need to [register an application](https://lfs.net/account/api) with the LFS API. Next, choose the most appropriate LFS API OAuth2 flow of those supported.
+Before you can make requests, you need to [register an application](https://lfs.net/account/api) with the LFS API. Next, choose the most appropriate LFS API OAuth2 flow for your project of those supported.
 
 ### Secure Applications
 
