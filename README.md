@@ -235,6 +235,8 @@ Returns a new access and refresh token. You should use the `expires_in` property
 
 ## API Methods
 
+When using authorization flows, all API methods should be passed an access token as the last argument.
+
 This module currently offers the following LFS API methods:
 
 - [Hosts API](#hosts-api)
@@ -249,8 +251,6 @@ This module currently offers the following LFS API methods:
 ---
 
 ## Hosts API
-
-When using authorization flows, all API methods should be passed an access token as the last argument.
 
 ### **`async`** `LFSAPI.getHosts([token])`
 
