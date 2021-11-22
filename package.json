@@ -6,14 +6,14 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PButcher/lfs-api.git"
+    "url": "git+https://github.com/simbroadcasts/lfs-api.git"
   },
-  "author": "Peter Butcher <pbutcher93@gmail.com> (https://pbutcher.uk)",
+  "author": "Peter Butcher <pete@pbutcher.uk> (https://pbutcher.uk)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PButcher/lfs-api/issues"
+    "url": "https://github.com/simbroadcasts/lfs-api/issues"
   },
-  "homepage": "https://github.com/PButcher/lfs-api#readme",
+  "homepage": "https://github.com/simbroadcasts/lfs-api#readme",
   "scripts": {
     "dist": "tsc --declaration -p ./"
   },
