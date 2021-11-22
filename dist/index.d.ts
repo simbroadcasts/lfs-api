@@ -190,6 +190,34 @@ declare class LFSAPI {
      * @returns Host details by ID
      */
     getHost(id: number | string, token?: string): Promise<any>;
+    static hostStatuses: {
+        0: string;
+        1: string;
+        2: string;
+        3: string;
+        4: string;
+    };
+    /**
+     * @public
+     * @name lookupHostStatus
+     * @description Convert host status into name string
+     * @param {string|number} status - Host status
+     * @returns Host status string
+     */
+    lookupHostStatus(status: number | string): any;
+    static hostLocations: {
+        0: string;
+        1: string;
+        2: string;
+    };
+    /**
+     * @public
+     * @name lookupHostLocation
+     * @description Convert host location into name string
+     * @param {string|number} location - Host location
+     * @returns Host location string
+     */
+    lookupHostLocation(location: number | string): any;
     /**
      * @public
      * @name getUserInfo

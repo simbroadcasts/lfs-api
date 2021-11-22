@@ -254,11 +254,26 @@ This module currently offers the following LFS API methods:
 
 ### **`async`** `LFSAPI.getHosts([token])`
 
-List all hosts.
+List all hosts that you are an admin of.
 
 ### **`async`** `LFSAPI.getHost(id, [token])`
 
-Get specific host by ID: `id` _string_ - Host ID
+Get specific host you are an admin of by ID: `id` _string_ - Host ID
+
+### Hosts API Static Methods and Properties
+
+- [lookupHostStatus(status)](#lfsapilookuphoststatusstatus)
+  - `static` hostStatuses
+- [lookupHostLocation(location)](#lfsapilookuphostlocationlocation)
+  - `static` hostLocations
+
+#### `LFSAPI.lookupHostStatus(status)`
+
+Lookup the `status` property index fetched from the hosts API. A list of host statuses is available via the `LFSAPI.hostStatuses` static property.
+
+#### `LFSAPI.lookupHostLocation(location)`
+
+Lookup the `location` property index fetched from the hosts API. A list of host locations is available via the `LFSAPI.hostLocations` static property.
 
 ---
 
@@ -285,19 +300,19 @@ Get specific vehicle mod by ID: `id` _string_ - Vehicle mod ID
 
 #### `LFSAPI.lookupVehicleClassType(id)`
 
-Lookup the index fetched from `LFSAPI.getVehileMod(id).vehicle.class`. A list of vehicle class types is available via the `LFSAPI.vehicleClassTypes` static property.
+Lookup the `class` property index fetched from the vehicle API. A list of vehicle class types is available via the `LFSAPI.vehicleClassTypes` static property.
 
 #### `LFSAPI.lookupVehicleICELayoutType(id)`
 
-Lookup the index fetched from `LFSAPI.getVehicleMod(id).vehicle.iceLayout`. A list of ICE layout types is available via the `LFSAPI.vehicleClassTypes` static property.
+Lookup the `iceLayout` property index fetched from the vehicle API. A list of ICE layout types is available via the `LFSAPI.vehicleClassTypes` static property.
 
 #### `LFSAPI.lookupVehicleDriveType(id)`
 
-Lookup the index fetched from `LFSAPI.getVehileMod(id).vehicle.drive`. A list of drive types is available via the `LFSAPI.vehicleDriveTypes` static property.
+Lookup the index fetched from the vehicle API. A list of drive types is available via the `LFSAPI.vehicleDriveTypes` static property.
 
 #### `LFSAPI.lookupVehicleShiftType(id)`
 
-Lookup the index fetched from `LFSAPI.getVehileMod(id).vehicle.shiftType`. A list of shift types is available via the `LFSAPI.vehicleShiftTypes` static property.
+Lookup the index fetched from the vehicle API. A list of shift types is available via the `LFSAPI.vehicleShiftTypes` static property.
 
 ### Usage Example
 

@@ -108,6 +108,8 @@ class LFSAPI {
    * @description Request LFS API access token via Client Credentials Flow
    */
   async _getClientCredentialsFlowAccessToken() {
+    this._log("Get new client credentials flow access tokens");
+
     const params = new URLSearchParams({
       grant_type: "client_credentials",
       client_id: this.client_id,
@@ -120,7 +122,7 @@ class LFSAPI {
     // Client credentials flow tokens are stored in the class instance
     this.client_credentials_flow = {
       access_token: res.access_token,
-      expires_in: res.expires_in,
+      expires_in: Date.now() / 1000 + res.expires_in,
     };
   }
 
@@ -191,8 +193,10 @@ class LFSAPI {
    * @returns JSON response from LFS API
    */
   async makeRequest(endpoint: string, token?: string) {
+    this._log(`Make request to ${endpoint}`);
     // Get new cc flow access token if the previous one expired
-    if (!token && this._clientCredentialsFlowAccessTokenExpired) {
+    if (!token && this._clientCredentialsFlowAccessTokenExpired()) {
+      this._log("Client Credentials flow access token expired");
       await this._getClientCredentialsFlowAccessToken();
     }
 
@@ -369,6 +373,44 @@ class LFSAPI {
    */
   async getHost(id: number | string, token?: string) {
     return await this.makeRequest(`host/${id}`, token);
+  }
+
+  // Host statuses for lookup
+  static hostStatuses = {
+    0: "Off",
+    1: "On",
+    2: "Expired",
+    3: "Discarded",
+    4: "Suspended",
+  };
+
+  /**
+   * @public
+   * @name lookupHostStatus
+   * @description Convert host status into name string
+   * @param {string|number} status - Host status
+   * @returns Host status string
+   */
+  lookupHostStatus(status: number | string) {
+    return LFSAPI.hostStatuses[status];
+  }
+
+  // Host location for lookup
+  static hostLocations = {
+    0: "Europe (Rotterdam)",
+    1: "America (Ashburn)",
+    2: "Asia (Tokyo)",
+  };
+
+  /**
+   * @public
+   * @name lookupHostLocation
+   * @description Convert host location into name string
+   * @param {string|number} location - Host location
+   * @returns Host location string
+   */
+  lookupHostLocation(location: number | string) {
+    return LFSAPI.hostLocations[location];
   }
 
   // AUTHORIZATION_CODE ENDPOINTS
