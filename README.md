@@ -1,6 +1,6 @@
 # lfs-api
 
-[![NPM Version](https://img.shields.io/npm/v/lfs-api?style=flat-square)](https://www.npmjs.com/package/parse-lfs-message)
+[![NPM Version](https://img.shields.io/npm/v/lfs-api?style=flat-square)](https://www.npmjs.com/package/lfs-api)
 
 Query the [Live for Speed](https://lfs.net) API in your projects.
 
