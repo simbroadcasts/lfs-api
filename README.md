@@ -1,5 +1,7 @@
 # lfs-api
 
+[![NPM Version](https://img.shields.io/npm/v/lfs-api?style=flat-square)](https://www.npmjs.com/package/parse-lfs-message)
+
 Query the [Live for Speed](https://lfs.net) API in your projects.
 
 **Note:** This package does not yet support authorization flows with PKCE and is therefore only suitable for secure applications at this point in time. Do not use this module in insecure or single page applications (SPAs).
