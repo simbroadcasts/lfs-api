@@ -246,7 +246,7 @@ This module currently offers the following LFS API methods:
   - [getVehicleMods](#async-lfsapigetvehiclemods)
   - [getVehicleMod(id)](#async-lfsapigetvehiclemodid)
 - [User API](#user-api)
-  - [getUserInfo(code)](#async-lfsapigetuserinfocode)
+  - [getUserInfo(token)](#async-lfsapigetuserinfotoken)
 
 ---
 
@@ -308,11 +308,11 @@ Lookup the `iceLayout` property index fetched from the vehicle API. A list of IC
 
 #### `LFSAPI.lookupVehicleDriveType(id)`
 
-Lookup the index fetched from the vehicle API. A list of drive types is available via the `LFSAPI.vehicleDriveTypes` static property.
+Lookup the `drive` property index fetched from the vehicle API. A list of drive types is available via the `LFSAPI.vehicleDriveTypes` static property.
 
 #### `LFSAPI.lookupVehicleShiftType(id)`
 
-Lookup the index fetched from the vehicle API. A list of shift types is available via the `LFSAPI.vehicleShiftTypes` static property.
+Lookup the `shiftType` property index fetched from the vehicle API. A list of shift types is available via the `LFSAPI.vehicleShiftTypes` static property.
 
 ### Usage Example
 
