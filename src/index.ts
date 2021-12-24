@@ -1,10 +1,6 @@
-import fetch from "node-fetch";
+import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
-type CCFlow = {
-  access_token: string;
-  expires_in: number;
-};
+import { sha256 } from "js-sha256";
 
 /**
  * @name LFSAPI
@@ -17,11 +13,19 @@ type CCFlow = {
  */
 class LFSAPI {
   apiURL: string;
-  client_credentials_flow: CCFlow;
+  client_credentials_flow: {
+    access_token: string | null;
+    expires_in: number;
+  };
   client_id: string;
   client_secret: string;
   idURL: string;
   redirect_uri?: string;
+  spa?: boolean;
+  pkce: {
+    code_verifier: string | null;
+    code_challenge: string | null;
+  };
   verbose: boolean;
   version: string;
 
@@ -29,6 +33,7 @@ class LFSAPI {
     client_id: string,
     client_secret: string,
     redirect_uri?: string,
+    spa?: boolean,
     idURL?: string,
     apiURL?: string
   ) {
@@ -43,6 +48,15 @@ class LFSAPI {
 
     // Auth Flow Redirect URL
     this.redirect_uri = redirect_uri;
+
+    // Single Page Application
+    this.spa = spa;
+
+    // Code Challenge
+    this.pkce = {
+      code_verifier: null,
+      code_challenge: null,
+    };
 
     // ID Endpoint
     this.idURL = idURL ? idURL : "https://id.lfs.net";
@@ -78,15 +92,25 @@ class LFSAPI {
    * @param {string} [state] - User defined CSRF Token
    * @returns Object containing authentication URL and CSRF Token
    */
-  generateAuthFlowURL(scope: string, state?: string) {
+  async generateAuthFlowURL(scope: string, state?: string) {
     const csrfToken = state ? state : uuidv4();
-    const authURLParams = new URLSearchParams({
-      response_type: "code",
-      client_id: this.client_id,
-      redirect_uri: this.redirect_uri,
-      scope,
-      state: csrfToken,
-    });
+    const authURLParams = new URLSearchParams();
+
+    // Mutual params
+    authURLParams.set("response_type", "code");
+    authURLParams.set("client_id", this.client_id);
+    authURLParams.set("redirect_uri", this.redirect_uri);
+    authURLParams.set("scope", scope);
+    authURLParams.set("state", csrfToken);
+
+    // Generate PKCE Challenge Pair
+    if (this.spa) await this._generatePKCEPair();
+
+    if (this.spa && this.redirect_uri && this.pkce.code_challenge) {
+      // URLSearchParams for auth flow with pkce
+      authURLParams.set("code_challenge", this.pkce.code_challenge);
+      authURLParams.set("code_challenge_method", "S256");
+    }
 
     if (this.redirect_uri) {
       // Secure applications with Authorization Flow
@@ -133,17 +157,20 @@ class LFSAPI {
    * @param params Request parameters
    * @param access_token_store Access token type
    * @param access_token_expiry_store Access token type expiry
+   * @returns Access Tokens
    */
   async _getAccessToken(params: URLSearchParams) {
-    return await fetch(`${this.idURL}/oauth2/access_token`, {
+    return await axios({
+      url: `${this.idURL}/oauth2/access_token`,
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: params,
+      data: params,
     })
-      .then((res: { json: () => any }) => res.json())
-      .then((json) => json)
+      .then((res) => {
+        return res.data;
+      })
       .catch((err) => {
         this._error(err);
         return err;
@@ -155,33 +182,48 @@ class LFSAPI {
    * @name getAuthFlowTokens
    * @description Request LFS API access token via Authorization Code Flow
    * @param {string} code - Authorization code returned from LFS auth server
+   * @returns Access tokens
    */
   async getAuthFlowTokens(code: string) {
-    const params = new URLSearchParams({
-      grant_type: "authorization_code",
-      client_id: this.client_id,
-      client_secret: this.client_secret,
-      redirect_uri: this.redirect_uri,
-      code,
-    });
+    const authFlowTokenParams = new URLSearchParams();
 
-    return await this._getAccessToken(params);
+    // Mutual params
+    authFlowTokenParams.set("grant_type", "authorization_code");
+    authFlowTokenParams.set("client_id", this.client_id);
+    authFlowTokenParams.set("redirect_uri", this.redirect_uri);
+    authFlowTokenParams.set("code", code);
+
+    if (this.spa && this.redirect_uri && this.pkce.code_verifier) {
+      // Auth flow with PKCE
+      authFlowTokenParams.set("code_verifier", this.pkce.code_verifier);
+    } else if (this.redirect_uri) {
+      // Auth flow with client secret
+      authFlowTokenParams.set("client_secret", this.client_secret);
+    }
+
+    return await this._getAccessToken(authFlowTokenParams);
   }
   /**
-   * @private
+   * @public
    * @name refreshAccessToken
    * @description Refresh an access token using refresh token
    * @param {string} refresh_token - Refresh token
+   * @returns Access tokens
    */
   async refreshAccessToken(refresh_token: string) {
-    const params = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token,
-      client_id: this.client_id,
-      client_secret: this.client_secret,
-    });
+    const refreshTokenParams = new URLSearchParams();
 
-    return await this._getAccessToken(params);
+    // Mutual params
+    refreshTokenParams.set("grant_type", "refresh_token");
+    refreshTokenParams.set("refresh_token", refresh_token);
+    refreshTokenParams.set("client_id", this.client_id);
+
+    if (!this.spa) {
+      // Refresh token params for auth flow with client secret
+      refreshTokenParams.set("client_secret", this.client_secret);
+    }
+
+    return await this._getAccessToken(refreshTokenParams);
   }
 
   /**
@@ -201,7 +243,8 @@ class LFSAPI {
     }
 
     // Make API request
-    return await fetch(`${this.apiURL}/${endpoint}`, {
+    return await axios({
+      url: `${this.apiURL}/${endpoint}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${
@@ -209,11 +252,12 @@ class LFSAPI {
         }`,
       },
     })
-      .then((res: { json: () => any }) => res.json())
-      .then((json: any) => json)
+      .then((res) => {
+        return res.data;
+      })
       .catch((err: any) => {
         this._error(err);
-        return err;
+        return err?.response ? err.response.data : err;
       });
   }
 
@@ -222,6 +266,7 @@ class LFSAPI {
    * @name setVerbose
    * @description Log debug messages
    * @param {boolean} v
+   * @returns this
    */
   setVerbose(v: boolean) {
     if (typeof v === "boolean") this.verbose = v;
@@ -237,6 +282,81 @@ class LFSAPI {
   }
   _error(msg: string) {
     if (this.verbose) console.error(`LFSAPI Error: ${msg}`);
+  }
+
+  /**
+   * @private
+   * @name _generateCodeVerifier
+   * @description Generate verifier for PKCE challenge pair
+   * @returns PKCE Challenge verifier
+   */
+  _generateCodeVerifier() {
+    function dec2hex(dec: { toString: (arg0: number) => string }) {
+      return ("0" + dec.toString(16)).substr(-2);
+    }
+
+    var array = new Uint32Array(56 / 2);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, dec2hex).join("");
+  }
+
+  /**
+   * @private
+   * @name _generateCodeChallengeFromVerifier
+   * @description Generate code challenge for PKCE challenge pair
+   * @param {string} verifier - PKCE Challenge verifier
+   * @returns PKCE Challenge code challenge
+   */
+  async _generateCodeChallengeFromVerifier(verifier: string) {
+    return btoa(
+      String.fromCharCode(
+        ...new Uint8Array(
+          new Uint8Array(
+            sha256(verifier)
+              .match(/.{1,2}/g)
+              .map((byte) => parseInt(byte, 16))
+          )
+        )
+      )
+    )
+      .slice(0, -1)
+      .replace(/[+]/g, "-")
+      .replace(/\//g, "_");
+  }
+
+  /**
+   * @public
+   * @name getPKCEVerifier
+   * @description Get PKCE Challenge verifier
+   * @returns PKCE Challenge verifier
+   */
+  getPKCEVerifier() {
+    return this.pkce.code_verifier;
+  }
+
+  /**
+   * @public
+   * @name setPKCEVerifier
+   * @description Set PKCE Challenge verifier
+   * @param {string} code_verifier - PKCE Challenge code verifier
+   */
+  setPKCEVerifier(code_verifier: string) {
+    this.pkce.code_verifier = code_verifier;
+  }
+
+  async _generatePKCEPair() {
+    // SPA: Generate code verifier and challenge
+    if (this.spa) {
+      let codeVerifier = this._generateCodeVerifier();
+      let codeChallenge = await this._generateCodeChallengeFromVerifier(
+        codeVerifier
+      );
+
+      this.pkce = {
+        code_verifier: codeVerifier,
+        code_challenge: codeChallenge,
+      };
+    }
   }
 
   // ENDPOINTS

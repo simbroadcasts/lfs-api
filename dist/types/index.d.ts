@@ -1,7 +1,3 @@
-declare type CCFlow = {
-    access_token: string;
-    expires_in: number;
-};
 /**
  * @name LFSAPI
  * @description Make requests to the Live for Speed JSON API
@@ -13,14 +9,22 @@ declare type CCFlow = {
  */
 declare class LFSAPI {
     apiURL: string;
-    client_credentials_flow: CCFlow;
+    client_credentials_flow: {
+        access_token: string | null;
+        expires_in: number;
+    };
     client_id: string;
     client_secret: string;
     idURL: string;
     redirect_uri?: string;
+    spa?: boolean;
+    pkce: {
+        code_verifier: string | null;
+        code_challenge: string | null;
+    };
     verbose: boolean;
     version: string;
-    constructor(client_id: string, client_secret: string, redirect_uri?: string, idURL?: string, apiURL?: string);
+    constructor(client_id: string, client_secret: string, redirect_uri?: string, spa?: boolean, idURL?: string, apiURL?: string);
     /**
      * @private
      * @name _clientCredentialsFlowAccessTokenExpired
@@ -36,10 +40,10 @@ declare class LFSAPI {
      * @param {string} [state] - User defined CSRF Token
      * @returns Object containing authentication URL and CSRF Token
      */
-    generateAuthFlowURL(scope: string, state?: string): {
+    generateAuthFlowURL(scope: string, state?: string): Promise<{
         authURL: string;
         csrfToken: string;
-    };
+    }>;
     /**
      * @private
      * @name _getClientCredentialsFlowAccessToken
@@ -53,6 +57,7 @@ declare class LFSAPI {
      * @param params Request parameters
      * @param access_token_store Access token type
      * @param access_token_expiry_store Access token type expiry
+     * @returns Access Tokens
      */
     _getAccessToken(params: URLSearchParams): Promise<any>;
     /**
@@ -60,13 +65,15 @@ declare class LFSAPI {
      * @name getAuthFlowTokens
      * @description Request LFS API access token via Authorization Code Flow
      * @param {string} code - Authorization code returned from LFS auth server
+     * @returns Access tokens
      */
     getAuthFlowTokens(code: string): Promise<any>;
     /**
-     * @private
+     * @public
      * @name refreshAccessToken
      * @description Refresh an access token using refresh token
      * @param {string} refresh_token - Refresh token
+     * @returns Access tokens
      */
     refreshAccessToken(refresh_token: string): Promise<any>;
     /**
@@ -83,11 +90,42 @@ declare class LFSAPI {
      * @name setVerbose
      * @description Log debug messages
      * @param {boolean} v
+     * @returns this
      */
     setVerbose(v: boolean): this;
     _log(msg: string): void;
     _warn(msg: string): void;
     _error(msg: string): void;
+    /**
+     * @private
+     * @name _generateCodeVerifier
+     * @description Generate verifier for PKCE challenge pair
+     * @returns PKCE Challenge verifier
+     */
+    _generateCodeVerifier(): string;
+    /**
+     * @private
+     * @name _generateCodeChallengeFromVerifier
+     * @description Generate code challenge for PKCE challenge pair
+     * @param {string} verifier - PKCE Challenge verifier
+     * @returns PKCE Challenge code challenge
+     */
+    _generateCodeChallengeFromVerifier(verifier: string): Promise<string>;
+    /**
+     * @public
+     * @name getPKCEVerifier
+     * @description Get PKCE Challenge verifier
+     * @returns PKCE Challenge verifier
+     */
+    getPKCEVerifier(): string;
+    /**
+     * @public
+     * @name setPKCEVerifier
+     * @description Set PKCE Challenge verifier
+     * @param {string} code_verifier - PKCE Challenge code verifier
+     */
+    setPKCEVerifier(code_verifier: string): void;
+    _generatePKCEPair(): Promise<void>;
     /**
      * @public
      * @name getVehicleMods

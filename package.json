@@ -1,9 +1,10 @@
 {
   "name": "lfs-api",
   "version": "0.1.2",
-  "type": "module",
-  "description": "Query the Live for Speed API with NodeJS",
-  "main": "dist/index.js",
+  "description": "Query the Live for Speed OAuth2 API in your Web projects",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/simbroadcasts/lfs-api.git"
@@ -15,13 +16,18 @@
   },
   "homepage": "https://github.com/simbroadcasts/lfs-api#readme",
   "scripts": {
-    "dist": "tsc --declaration -p ./"
+    "build": "yarn build:cjs && yarn build:esm && yarn build:types",
+    "build:cjs": "tsc --outDir dist/cjs --module commonjs",
+    "build:esm": "tsc --outDir dist/esm --module es2015",
+    "build:types": "tsc --outDir dist/types --emitDeclarationOnly --declaration"
   },
   "dependencies": {
-    "node-fetch": "^3.0.0",
+    "axios": "^0.24.0",
+    "js-sha256": "^0.9.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@tsconfig/node14": "^1.0.1",
     "@types/node": "^16.11.0",
     "@types/uuid": "^8.3.1",
     "typescript": "^4.4.4"

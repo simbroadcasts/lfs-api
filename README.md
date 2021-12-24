@@ -2,9 +2,7 @@
 
 [![NPM Version](https://img.shields.io/npm/v/lfs-api?style=flat-square)](https://www.npmjs.com/package/lfs-api)
 
-Query the [Live for Speed](https://lfs.net) API in your projects.
-
-**Note:** This package does not yet support authorization flows with PKCE and is therefore only suitable for secure applications at this point in time. Do not use this module in insecure or single page applications (SPAs).
+Query the [Live for Speed](https://lfs.net) OAuth2 API in your Web projects.
 
 ---
 
@@ -14,26 +12,34 @@ Add this module to your project with `npm install lfs-api` or `yarn add lfs-api`
 
 ---
 
-## Usage
+## Supported Flows
 
 Before you can make requests, you need to [register an application](https://lfs.net/account/api) with the LFS API. Next, choose the most appropriate LFS API OAuth2 flow for your project of those supported.
 
 ### Secure Applications
 
-Your application can securely store a secret. The source code is hidden from the public.
+Secure applications are defined as follows:
+
+> Your application can securely store a secret. The source code is hidden from the public.
 
 - [Client Credentials Flow with Client Secret](#client-credentials-flow-with-client-secret)
 - [Authorization Flow with Client Secret](#authorization-flow-with-client-secret)
 
-### Single Page Applications (SPAs)
+### Insecure Applications
 
-**Coming soon!**
+Insecure applications are defined as follows:
 
-Your application cannot securely store a secret because all source code is public domain.
+> Your application cannot securely store a secret because all source code is public domain E.g. Single Page Applications (SPAs).
 
 - [Authorization flow with PKCE](#authorization-flow-with-pkce)
 
+---
+
+## Usage
+
 ### Client Credentials Flow with Client Secret
+
+[`Secure apps only`](#secure-applications)
 
 You can use your `client_id` and `client_secret` to make LFS API calls in your app:
 
@@ -57,13 +63,17 @@ const myMod = await api.makeRequest("vehiclemod/39CEEB");
 
 ### Authorization Flow with Client Secret
 
-This flow allows you to authenticate a user with their LFS account.
+[`Secure apps only`](#secure-applications)
 
-- First you will generate a URL including your `client_id`, `scope`, `redirect_uri` and an optional CSRF token (`state`). The `redirect_uri` is set in your [lfs.net](https://lfs.net) API settings (can be localhost for development and testing).
-- When a user clicks the URL they are directed to [lfs.net](https://lfs.net) to authenticate.
-- Once a user has accepted the scope, they are returned to your site's `redirect_uri`.
-- This user is now authenticated. To identify the user, and to make API queries, you will now need to request access tokens using the autorization code in the URL query string.
+This flow allows you to authenticate a user with their LFS account and make API requests based on the accepted OAuth2 scopes.
+
+- Pass your `client_id`, `client_secret` and `redirect_uri` to the constructor.
+- Next you will generate a URL to direct users to [lfs.net](https://lfs.net) to accept OAuth2 scopes. Pass a space separated list of scopes to `LFSAPI.generateAuthFlowURL(scope)`.
+- Once a user clicks this URL and accepts the OAuth2 scopes, the user will be redirected to the `redirect_uri` you set in your [lfs.net API settings](https://lfs.net/account/api) (can be localhost for development and testing).
+- This user is now authenticated. To identify the user, and to make calls to the API, you will now need to request access tokens using the autorization code in the URL query string with `LFSAPI.getAuthFlowTokens(code)`.
 - Once these tokens have been received, you will get access to some protected API endpoints based on the accepted scope as well as all other API endpoints.
+
+You can refresh tokens with `LFSAPI.refreshAccessTokens(refreshToken)`.
 
 Here's a short example:
 
@@ -117,23 +127,140 @@ const newTokens = await api.refreshAccessToken(authFlowTokens.refresh_token);
 
 ### Authorization flow with PKCE
 
-This package does not yet support authorization flow with PKCE.
+This flow allows you to authenticate a user with their LFS account and make API requests based on the accepted scopes in insecure applications E.g. Single Page Apps (SPAs).
+
+- Pass your `client_id`, `client_secret` and `redirect_uri` to the constructor. The 4th argument (`spa`) should be set to `true` to mark this app as an insecure app.
+- Next you will generate a URL to direct users to [lfs.net](https://lfs.net) to accept OAuth2 scopes. Pass a space separated list of scopes to `LFSAPI.generateAuthFlowURL(scope)`.
+- At this point you will need to store the PKCE challenge verifier in a cookie (or local/session storage) to use after a user is redirected back to your app. You can get the verifier using `LFSAPI.getPKCEVerifier()`.
+- Once a user clicks the URL you generated earlier and accepts the OAuth2 scopes, the user will be redirected to the `redirect_uri` you set in your [lfs.net API settings](https://lfs.net/account/api) (can be localhost for development and testing).
+- This user is now authenticated. To identify the user, and to make calls to the API:
+  - First, you will need to let `lfs-api` know about the PKCE challenge verifier you stored earlier with `LFSAPI.setPKCEVerifier(codeVerifier)`.
+  - You can now request access tokens using the autorization code in the URL query string with `LFSAPI.getAuthFlowTokens(code)`
+- Once these tokens have been received, you will get access to some protected API endpoints based on the accepted scope as well as all other API endpoints.
+
+**Remember:** Don't forget to remove the PKCE code verifier cookie or session/localstorage object.
+
+Here's a short example using [React](https://reactjs.org):
+
+```jsx
+import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useSearchParams,
+} from "react-router-dom";
+import Cookies from "js-cookie";
+import LFSAPI from "lfs-api";
+import { CLIENT_ID, CLIENT_SECRET } from "./secrets";
+
+const api = new LFSAPI(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  "http://localhost:3000/",
+  true // Marks this app as an SPA
+);
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="*" element={<h1>404</h1>} />
+      </Routes>
+    </Router>
+  );
+}
+
+function Home() {
+  const [searchParams] = useSearchParams();
+  const [authURL, setAuthURL] = useState("");
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    async function authFlow() {
+      // Generate auth flow URL
+      const authFlowURL = await api.generateAuthFlowURL("openid profile email");
+
+      // Code Verifier Cookie Exists
+      if (Cookies.get("codeVerifier")) {
+        // Set verifier if exists in cookie
+        api.setPKCEVerifier(Cookies.get("codeVerifier"));
+      }
+
+      // If code and no cookie...
+      if (!Cookies.get("accessToken") && searchParams.get("code")) {
+        const authFlowTokens = await api.getAuthFlowTokens(
+          searchParams.get("code")
+        );
+
+        // Set cookies
+        Cookies.set("accessToken", authFlowTokens.access_token);
+        Cookies.set("refreshToken", authFlowTokens.refresh_token);
+        Cookies.set("expires", Date.now() / 1000 + authFlowTokens.expires_in);
+
+        // Remove invalid code verifier cookie
+        Cookies.remove("codeVerifier");
+      }
+
+      // If code verifier cookie hasn't been set yet, set it
+      if (!Cookies.get("codeVerifier")) {
+        Cookies.set("codeVerifier", api.getPKCEVerifier());
+      }
+
+      if (Cookies.get("accessToken")) {
+        if (Cookies.get("expires") < Date.now() / 1000) {
+          // Access token expired!
+          // Check for expiration and get new tokens with refresh token...
+        }
+        // Use protected APIs...
+        const user = await api.getUserInfo(Cookies.get("accessToken"));
+        setUser(user);
+      }
+
+      setAuthURL(authFlowURL.authURL);
+    }
+    authFlow();
+  }, [searchParams]);
+
+  return (
+    <>
+      {user ? (
+        `Welcome ${user.data.name}!`
+      ) : (
+        <a href={authURL}>Authenticate with lfs.net</a>
+      )}
+    </>
+  );
+}
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById("root")
+);
+```
+
+This example doesn't handle refreshing a token, that is left as an exercise for the reader. You can refresh tokens with `LFSAPI.refreshAccessTokens(refreshToken)`.
 
 ---
 
 ## Basic API
 
-### `LFSAPI.constructor(client_id, client_secret, [redirect_url])`
+### `LFSAPI.constructor(client_id, client_secret, [redirect_url], [spa])`
 
 Create an LFS API class instance.
 
 #### Parameters
 
-| Parameter       | Type     | Description                                               |
-| --------------- | -------- | --------------------------------------------------------- |
-| `client_id`     | _string_ | Your application's client ID                              |
-| `client_secret` | _string_ | Your application's client secret                          |
-| `redirect_uri`  | _string_ | Your application's redirect URI (Use only with Auth Flow) |
+| Parameter       | Type      | Description                                                           |
+| --------------- | --------- | --------------------------------------------------------------------- |
+| `client_id`     | _string_  | Your application's client ID                                          |
+| `client_secret` | _string_  | Your application's client secret                                      |
+| `redirect_uri`  | _string_  | Your application's redirect URI (Use only with Auth Flow)             |
+| `spa`           | _boolean_ | Mark this application as insecure (Use only with Auth Flow with PKCE) |
 
 #### Example
 
@@ -217,6 +344,8 @@ const { authURL, csrfToken } = api.generateAuthFlowURL("openid email profile");
 
 Use authorization flow code returned from [lfs.net](https://lfs.net) during authentication in exchange for access and refresh tokens. Use only with auth flow.
 
+When using auth flow with PKCE, you _must_ call [`LFSAPI.setPKCEVerifier(code_verifier)`](#lfsapisetpkceverifiercodeverifier) beforehand.
+
 #### Parameters
 
 | Parameter | Type     | Description                                                                                              |
@@ -232,6 +361,20 @@ Returns a new access and refresh token. You should use the `expires_in` property
 | Parameter       | Type     | Description                                                                                      |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------ |
 | `refresh_token` | _string_ | A `refresh_token` previously received from `LFSAPI.getAccessTokens()` to refresh a user session. |
+
+### `LFSAPI.getPKCEVerifier()`
+
+Returns the code verifier part of the PKCE challenge pair. This should be used to set a cookie or LocalStorage entry during authorization flows with PKCE.
+
+### `LFSAPI.setPKCEVerifier(code_verifier)`
+
+Used to set the code verifier part of the PKCE challenge pair. This should be used to let `lfs-api` know what the current code verifier is once users are redirected back to your `redirect_uri` after scope confirmation. You should call this function before requesting access tokens.
+
+#### Parameters
+
+| Parameter       | Type     | Description                                                                         |
+| --------------- | -------- | ----------------------------------------------------------------------------------- |
+| `code_verifier` | _string_ | A PKCE code verifier retrieved from a cookie or storage prior to scope confirmation |
 
 ---
 
@@ -366,3 +509,9 @@ Get information about the user you are authenticating
 Toggle debug logging
 
 `verbose` _boolean_ - Verbose debug messages
+
+---
+
+## Limitations
+
+The PKCE flow is quite an involved process. It would be better if the library used `js-cookie` or `LocalStorage` natively to _optionally_ handle setting, removing and updating access tokens, refresh tokens and the PKCE code verifier from cookies/storage automatically. This is a planned update.

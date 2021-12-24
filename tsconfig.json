@@ -1,8 +1,10 @@
 {
+  "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
-    "target": "es2017",
-    "rootDir": "./src/",
-    "outDir": "./dist/",
+    "target": "ES2015",
+    "strict": false,
+    "lib": ["dom"],
     "moduleResolution": "node"
-  }
+  },
+  "exclude": ["dist"]
 }
