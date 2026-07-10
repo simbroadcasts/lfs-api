@@ -1,10 +1,13 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
+    "rootDir": "src",
     "target": "ES2015",
     "strict": false,
     "lib": ["dom"],
-    "moduleResolution": "node"
+    "module": "es2015",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "exclude": ["dist"]
 }
